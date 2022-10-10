@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 import os
 
-LOG_DIR = "adult_census_income_logs"
+LOG_DIR = os.path.join("adult_census_income", "logs")
 
 CURRENT_TIME_STAMP = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 
