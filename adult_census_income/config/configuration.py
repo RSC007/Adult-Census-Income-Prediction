@@ -29,19 +29,13 @@ class Configuration:
             
             data_ingestion_config = self.config_info[DATA_INGESTION_CONFIG_KEY]
 
-            dataset_download_url = self.config_info[DATA_INGESTION_DOWNLOAD_URL]
-
-            tgz_download_dir = os.path.join(artifact_dir, data_ingestion_config[DATA_INGESTION_TGZ_DOWNLOAD_DIR_KEY])
-
-            raw_data_dir = os.path.join(artifact_dir, data_ingestion_config[DATA_INGESTION_RAW_DIR_KEY])
+            raw_data_dir = os.path.join(artifact_dir, data_ingestion_config[DATA_INGESTION_ARTIFACT_DIR_KEY], self.time_stamp, data_ingestion_config[DATA_INGESTION_RAW_DIR_KEY])
 
             ingestion_train_dir = os.path.join(raw_data_dir, data_ingestion_config[DATA_INGESTION_TRAIN_DIR_KEY])
 
-            ingestion_test_dir = os.path.join(artifact_dir, data_ingestion_config[DATA_INGESTION_TEST_DIR_KEY])
+            ingestion_test_dir = os.path.join(raw_data_dir, data_ingestion_config[DATA_INGESTION_TEST_DIR_KEY])
 
             data_ingestion_config = DataIngestionConfig(
-                dataset_download_url=dataset_download_url,
-                tgz_download_dir=tgz_download_dir,
                 raw_data_dir=raw_data_dir,
                 ingestion_train_dir=ingestion_train_dir,
                 ingestion_test_dir=ingestion_test_dir
@@ -55,11 +49,11 @@ class Configuration:
 
     def get_training_pipeline_config(self):
         try:
-            training_pipeline_config = self.training_pipeline_config[TRAINING_PIPELINE_CONFIG_KEY]
-            artifact_dir = os.path.join(ROOT_DIR, training_pipeline_config[TRAINING_PIPELINE_NAME_KEY], training_pipeline_config[TRAINING_PIPELINE_ARTIFACT_DIR_KEY])
+            training_pipeline_config_info = self.config_info[TRAINING_PIPELINE_CONFIG_KEY]
+            artifact_dir = os.path.join(ROOT_DIR, training_pipeline_config_info[TRAINING_PIPELINE_NAME_KEY], training_pipeline_config_info[TRAINING_PIPELINE_ARTIFACT_DIR_KEY])
 
             traininig_pipeline_config = TrainingPipelineConfig(artifact_dir=artifact_dir)
-            logging.info(f"Training Pipeline cong: {training_pipeline_config}")
+            logging.info(f"Training Pipeline cong: {training_pipeline_config_info}")
             return traininig_pipeline_config
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
