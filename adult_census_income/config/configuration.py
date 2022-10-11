@@ -6,7 +6,7 @@ from adult_census_income.logger import logging
 from adult_census_income.constant import *
 from adult_census_income.util.util import read_yaml_file
 
-from adult_census_income.entity.entity_config import DataIngestionConfig, DataValidationConfig, TrainingPipelineConfig
+from adult_census_income.entity.entity_config import DataIngestionConfig, DataTransformationConfig, DataValidationConfig, TrainingPipelineConfig
 
 
 class Configuration:
@@ -86,6 +86,49 @@ class Configuration:
 
             logging.info(f"Data Validation complete: {data_validation_config}")
             return data_validation_config
+        except Exception as e:
+            raise AdutlCensusIncomeException(e, sys) from e
+
+
+    def get_data_trasformation_config(self):
+        try:
+            logging.info(f"="*100)
+            logging.info(f"Data Tranform configuration started...")
+
+            artifact_dir = self.training_pipeline_config.artifact_dir
+            data_transformation_config = self.config_info[DATA_TRANSFORMATION_CONFIG_KEY]
+
+            data_transformation_artifact_dir = os.path.join(
+                artifact_dir,
+                DATA_TRANSFORMATION_ARTIFACT_DIR,
+                self.time_stamp
+            )
+
+            transformed_train_dir = os.path.join(
+                data_transformation_artifact_dir,
+                data_transformation_config[DATA_TRANSFORMATION_DIR_NAME_KEY],
+                data_transformation_config[DATA_TRANSFORMATION_TRAIN_DIR_NAME_KEY]
+            )
+
+            transformed_test_dir = os.path.join(
+                data_transformation_artifact_dir,
+                data_transformation_config[DATA_TRANSFORMATION_DIR_NAME_KEY],
+                data_transformation_config[DATA_TRANSFORMATION_TEST_DIR_NAME_KEY]
+            )
+
+            preprocessed_object_file_path = os.path.join(
+                data_transformation_artifact_dir,
+                data_transformation_config[DATA_TRANSFORMATION_PREPROCESSING_DIR_KEY],
+                data_transformation_config[DATA_TRANSFORMATION_PREPROCESSED_FILE_NAME_KEY]
+            )
+
+            data_transformation_config = DataTransformationConfig(
+                transformed_train_dir=transformed_train_dir,
+                transformed_test_dir=transformed_test_dir,
+                preprocessed_object_file_path=preprocessed_object_file_path
+            )
+            logging.info(f"Data Tranformation Config: {data_transformation_config}")
+            return data_transformation_config
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
 
