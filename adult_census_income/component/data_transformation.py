@@ -29,17 +29,18 @@ class DataTranformation:
 
     def remove_descrete_and_not_need_columns(self, dataframe):
         try:
+            logging.info(f"Removing not need columns...")
             df = dataframe.copy()
             not_need_columns = ["education", "fnlwgt", "marital-status", "capital-gain", "capital-loss"]
             df.drop(not_need_columns, axis=1, inplace=True)
-            logging.info(f"Remove not need columns: [{not_need_columns}]")
-            return df
 
+            return df
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
 
     def get_labeled_data_frame(self, df):
         try:
+            logging.info(f"Encoding the columns...")
             le = LabelEncoder()
             dataframe = df.copy()
             for column in dataframe.columns:
@@ -73,6 +74,7 @@ class DataTranformation:
             transformed_train_file_path = os.path.join(self.data_tranformation_config.transformed_train_dir, "train.csv")
             transformed_test_file_path = os.path.join(self.data_tranformation_config.transformed_test_dir, "test.csv")
 
+            logging.info(f"Saving data...")
             train_df.to_csv(transformed_train_file_path)
             test_df.to_csv(transformed_test_file_path)
 
@@ -82,6 +84,7 @@ class DataTranformation:
 
     def initiate_data_tranformation(self) -> DataTransformationArtifact:
         try:
+            logging.info(f"started data transformation.")
             train_df, test_df = self.get_train_and_test_df()
 
             # transormed the data
@@ -90,6 +93,14 @@ class DataTranformation:
 
             # save the tranformend data
             train_file_path, test_file_path = self.save_transformed_data(train_df, test_df)
-            print(train_file_path, test_file_path)
+            data_transformed_artifact = DataTransformationArtifact(
+                is_transformed=True,
+                message=f"Data Transformed completed.",
+                transformed_train_file_path=train_file_path,
+                transformed_test_file_path=test_file_path
+            )
+
+            logging.info(f"data tranformatiom : [{data_transformed_artifact}]")
+            return data_transformed_artifact
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
