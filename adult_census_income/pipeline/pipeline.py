@@ -1,4 +1,5 @@
 import os,sys
+from adult_census_income.component.data_transformation import DataTranformation
 
 from adult_census_income.component.data_validation import DataValidation
 from adult_census_income.config.configuration import Configuration
@@ -32,8 +33,12 @@ class Pipeline:
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
 
-    def start_data_transformation(self):
-        pass
+    def start_data_transformation(self, data_ingestion_artifact):
+        try:
+            data_tranformation = DataTranformation(data_ingestion_artifact_config=data_ingestion_artifact, data_tranformation_config=self.config.get_data_trasformation_config())
+            return data_tranformation.initiate_data_tranformation()
+        except Exception as e:
+            raise AdutlCensusIncomeException(e, sys) from e
 
     def start_model_trainer(self):
         pass
@@ -46,10 +51,15 @@ class Pipeline:
 
     def run_pipeline(self):
         try:
-            #data ingestion
 
+            logging.info(f"{'-=-'*50}, Data Ingestion, {'-=-'*50}")
             data_ingestion_artifact = self.start_data_ingestion()
+
+            logging.info(f"{'-=-'*50}, Data Validation, {'-=-'*50}")
             self.start_data_validation(data_ingestion_artifact=data_ingestion_artifact)
+
+            logging.info(f"{'-=-'*50}, Data Transformation, {'-=-'*50}")
+            self.start_data_transformation(data_ingestion_artifact=data_ingestion_artifact)
 
         except Exception as e:
             raise AdutlCensusIncomeException(e,sys) from e

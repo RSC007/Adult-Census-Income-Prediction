@@ -145,5 +145,9 @@ class DataValidation:
                 message="Data validation perform successfully"
             )
             logging.info(f"Data validation artifact: {data_validation_artifact}")
+            return data_validation_artifact
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
+
+    def __del__(self):
+        logging.info(f"{'='*20}Data Validation log completed.{'='*20} \n\n")
