@@ -6,3 +6,4 @@ numpy
 seaborn
 ipykernel
 PyYAML
+evidently
