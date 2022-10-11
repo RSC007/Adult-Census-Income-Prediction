@@ -104,3 +104,6 @@ class DataTranformation:
             return data_transformed_artifact
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
+
+    def __del__(self):
+        logging.info(f"{'='*20}Data Transformation log completed.{'='*20} \n\n")

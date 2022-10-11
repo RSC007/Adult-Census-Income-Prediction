@@ -51,10 +51,14 @@ class Pipeline:
 
     def run_pipeline(self):
         try:
-            #data ingestion
 
+            logging.info(f"{'-=-'*50}, Data Ingestion, {'-=-'*50}")
             data_ingestion_artifact = self.start_data_ingestion()
+
+            logging.info(f"{'-=-'*50}, Data Validation, {'-=-'*50}")
             self.start_data_validation(data_ingestion_artifact=data_ingestion_artifact)
+
+            logging.info(f"{'-=-'*50}, Data Transformation, {'-=-'*50}")
             self.start_data_transformation(data_ingestion_artifact=data_ingestion_artifact)
 
         except Exception as e:
