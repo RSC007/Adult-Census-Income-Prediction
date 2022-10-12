@@ -6,7 +6,7 @@ from adult_census_income.logger import logging
 from adult_census_income.constant import *
 from adult_census_income.util.util import read_yaml_file
 
-from adult_census_income.entity.entity_config import DataIngestionConfig, DataTransformationConfig, DataValidationConfig, TrainingPipelineConfig
+from adult_census_income.entity.entity_config import DataIngestionConfig, DataTransformationConfig, DataValidationConfig, ModelTrainerConfig, TrainingPipelineConfig
 
 
 class Configuration:
@@ -26,14 +26,17 @@ class Configuration:
         try:
             logging.info(f"Data ingestion configuration started...")
             artifact_dir = self.training_pipeline_config.artifact_dir
-            
+
             data_ingestion_config = self.config_info[DATA_INGESTION_CONFIG_KEY]
 
-            raw_data_dir = os.path.join(artifact_dir, data_ingestion_config[DATA_INGESTION_ARTIFACT_DIR_KEY], self.time_stamp, data_ingestion_config[DATA_INGESTION_RAW_DIR_KEY])
+            raw_data_dir = os.path.join(
+                artifact_dir, data_ingestion_config[DATA_INGESTION_ARTIFACT_DIR_KEY], self.time_stamp, data_ingestion_config[DATA_INGESTION_RAW_DIR_KEY])
 
-            ingestion_train_dir = os.path.join(raw_data_dir, data_ingestion_config[DATA_INGESTION_TRAIN_DIR_KEY])
+            ingestion_train_dir = os.path.join(
+                raw_data_dir, data_ingestion_config[DATA_INGESTION_TRAIN_DIR_KEY])
 
-            ingestion_test_dir = os.path.join(raw_data_dir, data_ingestion_config[DATA_INGESTION_TEST_DIR_KEY])
+            ingestion_test_dir = os.path.join(
+                raw_data_dir, data_ingestion_config[DATA_INGESTION_TEST_DIR_KEY])
 
             data_ingestion_config = DataIngestionConfig(
                 raw_data_dir=raw_data_dir,
@@ -61,7 +64,6 @@ class Configuration:
 
             data_validation_config = self.config_info[DATA_VALIDATION_CONFIG_KEY]
 
-
             schema_file_path = os.path.join(
                 ROOT_DIR,
                 data_validation_config[DATA_VALIDATION_SCHEMA_DIR_KEY],
@@ -88,7 +90,6 @@ class Configuration:
             return data_validation_config
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
-
 
     def get_data_trasformation_config(self):
         try:
@@ -120,19 +121,53 @@ class Configuration:
                 transformed_train_dir=transformed_train_dir,
                 transformed_test_dir=transformed_test_dir,
             )
-            logging.info(f"Data Tranformation Config: {data_transformation_config}")
+            logging.info(
+                f"Data Tranformation Config: {data_transformation_config}")
             return data_transformation_config
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
 
+    def get_model_trainer_config(self):
+        try:
+            logging.info(f"="*100)
+            logging.info(f"Model Trainer configuration started...")
+
+            artifact_dir = self.training_pipeline_config.artifact_dir
+
+            model_trainer_config_info = self.config_info[MODEL_TRAINER_CONFIG_KEY]
+
+            model_trainer_artifact_dir = os.path.join(
+                artifact_dir,
+                MODEL_TRAINER_ARTIFACT_DIR,
+                self.time_stamp
+            )
+
+            trained_model_file_path = os.path.join(model_trainer_artifact_dir,
+                                                   model_trainer_config_info[MODEL_TRAINER_TRAINED_MODEL_DIR_KEY],
+                                                   model_trainer_config_info[MODEL_TRAINER_TRAINED_MODEL_FILE_NAME_KEY]
+                                                   )
+
+            base_accuracy = model_trainer_config_info[MODEL_TRAINER_BASE_ACCURACY_KEY]
+
+            model_trainer_config = ModelTrainerConfig(
+                trained_model_file_path=trained_model_file_path,
+                base_accuracy=base_accuracy,
+            )
+            logging.info(f"Model trainer config: {model_trainer_config}")
+            return model_trainer_config
+        except Exception as e:
+            raise AdutlCensusIncomeException(e, sys) from e
 
     def get_training_pipeline_config(self):
         try:
             training_pipeline_config_info = self.config_info[TRAINING_PIPELINE_CONFIG_KEY]
-            artifact_dir = os.path.join(ROOT_DIR, training_pipeline_config_info[TRAINING_PIPELINE_NAME_KEY], training_pipeline_config_info[TRAINING_PIPELINE_ARTIFACT_DIR_KEY])
+            artifact_dir = os.path.join(
+                ROOT_DIR, training_pipeline_config_info[TRAINING_PIPELINE_NAME_KEY], training_pipeline_config_info[TRAINING_PIPELINE_ARTIFACT_DIR_KEY])
 
-            traininig_pipeline_config = TrainingPipelineConfig(artifact_dir=artifact_dir)
-            logging.info(f"Training Pipeline cong: {training_pipeline_config_info}")
+            traininig_pipeline_config = TrainingPipelineConfig(
+                artifact_dir=artifact_dir)
+            logging.info(
+                f"Training Pipeline cong: {training_pipeline_config_info}")
             return traininig_pipeline_config
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e

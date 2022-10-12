@@ -2,6 +2,7 @@ import os,sys
 from adult_census_income.component.data_transformation import DataTranformation
 
 from adult_census_income.component.data_validation import DataValidation
+from adult_census_income.component.model_training import ModelTrainer
 from adult_census_income.config.configuration import Configuration
 from adult_census_income.logger import logging
 from adult_census_income.exception import AdutlCensusIncomeException
@@ -40,8 +41,12 @@ class Pipeline:
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
 
-    def start_model_trainer(self):
-        pass
+    def start_model_trainer(self, model_tranformed_artifact):
+        try:
+            data_trainer = ModelTrainer(model_tranformed_artifact=model_tranformed_artifact, model_trainer_config=self.config.get_model_trainer_config())
+            return data_trainer.initiate_model_trainer()
+        except Exception as e:
+            raise AdutlCensusIncomeException(e, sys) from e
 
     def start_model_evaluation(self):
         pass
@@ -52,14 +57,17 @@ class Pipeline:
     def run_pipeline(self):
         try:
 
-            logging.info(f"{'-=-'*50}, Data Ingestion, {'-=-'*50}")
+            logging.info(f"{'-=-'*50} Data Ingestion {'-=-'*50}")
             data_ingestion_artifact = self.start_data_ingestion()
 
-            logging.info(f"{'-=-'*50}, Data Validation, {'-=-'*50}")
+            logging.info(f"{'-=-'*50} Data Validation {'-=-'*50}")
             self.start_data_validation(data_ingestion_artifact=data_ingestion_artifact)
 
-            logging.info(f"{'-=-'*50}, Data Transformation, {'-=-'*50}")
-            self.start_data_transformation(data_ingestion_artifact=data_ingestion_artifact)
+            logging.info(f"{'-=-'*50} Data Transformation {'-=-'*50}")
+            model_tranformed_artifact = self.start_data_transformation(data_ingestion_artifact=data_ingestion_artifact)
+
+            logging.info(f"{'-=-'*50} Data Trainer {'-=-'*50}")
+            self.start_model_trainer(model_tranformed_artifact)
 
         except Exception as e:
             raise AdutlCensusIncomeException(e,sys) from e
