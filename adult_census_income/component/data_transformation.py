@@ -27,18 +27,22 @@ class DataTranformation:
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
 
-    def remove_descrete_and_not_need_columns(self, dataframe):
+    @staticmethod
+    def remove_descrete_and_not_need_columns(dataframe):
         try:
             logging.info(f"Removing not need columns...")
             df = dataframe.copy()
             not_need_columns = ["education", "fnlwgt", "marital-status", "capital-gain", "capital-loss"]
-            df.drop(not_need_columns, axis=1, inplace=True)
+            for column in not_need_columns:
+                if column in df.columns:
+                    df.drop(column, axis=1, inplace=True)
 
             return df
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
 
-    def get_labeled_data_frame(self, df):
+    @staticmethod
+    def get_labeled_data_frame(df):
         try:
             logging.info(f"Encoding the columns...")
             le = LabelEncoder()
@@ -50,10 +54,11 @@ class DataTranformation:
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
 
-    def get_tranform_data(self, df):
+    @staticmethod
+    def get_tranform_data(df):
         try:
             # Remove unnessecery columns
-            dataframe = self.remove_descrete_and_not_need_columns(df)
+            dataframe = DataTranformation.remove_descrete_and_not_need_columns(df)
 
             # replace the "?"
             dataframe.replace("?", np.NaN, inplace=True)
@@ -61,7 +66,7 @@ class DataTranformation:
             dataframe.fillna(method="ffill", inplace=True)
 
             # LabelEncoding to convert the sting into numeric for classification
-            dataframe = self.get_labeled_data_frame(dataframe)
+            dataframe = DataTranformation.get_labeled_data_frame(dataframe)
             return dataframe
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
@@ -88,8 +93,8 @@ class DataTranformation:
             train_df, test_df = self.get_train_and_test_df()
 
             # transormed the data
-            train_df = self.get_tranform_data(train_df)
-            test_df = self.get_tranform_data(test_df)
+            train_df = DataTranformation.get_tranform_data(train_df)
+            test_df = DataTranformation.get_tranform_data(test_df)
 
             # save the tranformend data
             train_file_path, test_file_path = self.save_transformed_data(train_df, test_df)
