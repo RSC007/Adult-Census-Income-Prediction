@@ -1,7 +1,5 @@
 from collections import namedtuple
 import importlib
-import os
-from statistics import mode
 import sys
 from typing import List
 import pandas as pd
@@ -15,6 +13,7 @@ from adult_census_income.constant import *
 from adult_census_income.util.util import read_yaml_file, save_object
 from adult_census_income.entity.artifact_entity import DataTransformationArtifact, ModelTrainerArtifact
 from adult_census_income.entity.entity_config import ModelTrainerConfig
+from adult_census_income.component.data_transformation import DataTranformation
 
 MODULE_KEY = "module"
 CLASS_KEY = "class"
@@ -229,17 +228,25 @@ class ModelTrainer:
             # save_object(file_path=trained_model_file_path,obj=adult_census_income_model)
 
             model_trainer_artifact=  ModelTrainerArtifact(is_trained=True,message="Model Trained successfully",
-            trained_model_file_path=trained_model_file_path,
-            train_rmse=metric_info.train_classification_report,
-            test_rmse=metric_info.test_classification_report,
-            train_accuracy=metric_info.train_accuracy,
-            test_accuracy=metric_info.test_accuracy,
+                trained_model_file_path=trained_model_file_path,
+                train_classification_report=metric_info.train_classification_report,
+                test_classification_report=metric_info.test_classification_report,
+                train_accuracy=metric_info.train_accuracy,
+                test_accuracy=metric_info.test_accuracy,
             )
-            print(model_trainer_artifact)
             logging.info(f"Model Trainer Artifact: {model_trainer_artifact}")
+            adult_census_income_predictor = AdultCensusIncomeEstimatorModel(trained_model_object=model_object, X_data=X_train)
+
+            logging.info(f"Saving model at path: {trained_model_file_path}")
+            save_object(file_path=trained_model_file_path,obj=adult_census_income_predictor)
+
             return model_trainer_artifact
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
+
+
+    def __del__(self):
+        logging.info(f"{'='*20}Model Trainer log completed.{'='*20} \n\n")
 
 
 class ModelFactory:
@@ -385,3 +392,29 @@ def evaluate_regression_model(model_list: list, X_train: np.ndarray, y_train: np
         return metric_info_artifact
     except Exception as e:
         raise AdutlCensusIncomeException(e, sys) from e
+
+
+
+class AdultCensusIncomeEstimatorModel:
+    def __init__(self, trained_model_object, X_data):
+        """
+        TrainedModel constructor
+        preprocessing_object: preprocessing_object
+        trained_model_object: trained_model_object
+        """
+        self.preprocessing_object = DataTranformation.get_tranform_data(X_data)
+        self.trained_model_object = trained_model_object
+
+    def predict(self, X):
+        """
+        function accepts raw inputs and then transformed raw input using preprocessing_object
+        which gurantees that the inputs are in the same format as the training data
+        At last it perform prediction on transformed features
+        """
+        return self.trained_model_object.predict(self.preprocessing_object)
+
+    def __repr__(self):
+        return f"{type(self.trained_model_object).__name__}()"
+
+    def __str__(self):
+        return f"{type(self.trained_model_object).__name__}()"

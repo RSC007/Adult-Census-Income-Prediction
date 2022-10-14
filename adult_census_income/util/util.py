@@ -2,7 +2,9 @@ import os
 import sys
 import yaml
 import pandas as pd
+import dill
 from adult_census_income.exception import AdutlCensusIncomeException
+
 
 def read_yaml_file(file_path: str):
     """
@@ -15,6 +17,7 @@ def read_yaml_file(file_path: str):
     except Exception as e:
         raise AdutlCensusIncomeException(e, sys) from e
 
+
 def read_csv_file(file_path: str):
     """
     Read csv file and return the contents as dataframe.
@@ -26,7 +29,8 @@ def read_csv_file(file_path: str):
     except Exception as e:
         raise AdutlCensusIncomeException(e, sys) from e
 
-def save_object(file_path:str,obj):
+
+def save_object(file_path: str, obj):
     """
     file_path: str
     obj: Any sort of object
@@ -37,4 +41,4 @@ def save_object(file_path:str,obj):
         with open(file_path, "wb") as file_obj:
             dill.dump(obj, file_obj)
     except Exception as e:
-        raise AdutlCensusIncomeException(e,sys) from e
+        raise AdutlCensusIncomeException(e, sys) from e

@@ -66,8 +66,10 @@ class Pipeline:
             logging.info(f"{'-=-'*50} Data Transformation {'-=-'*50}")
             model_tranformed_artifact = self.start_data_transformation(data_ingestion_artifact=data_ingestion_artifact)
 
-            logging.info(f"{'-=-'*50} Data Trainer {'-=-'*50}")
-            self.start_model_trainer(model_tranformed_artifact)
+            logging.info(f"{'-=-'*50} Model Trainer {'-=-'*50}")
+            model_training_artifact = self.start_model_trainer(model_tranformed_artifact=model_tranformed_artifact)
+
+            logging.info(f"{'-=-'*50} Model Evaluation {'-=-'*50}")
 
         except Exception as e:
             raise AdutlCensusIncomeException(e,sys) from e

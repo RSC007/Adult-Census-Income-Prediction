@@ -105,6 +105,12 @@ class Configuration:
                 self.time_stamp
             )
 
+            preprocessed_object_file_path = os.path.join(
+                data_transformation_artifact_dir,
+                data_transformation_config[DATA_TRANSFORMATION_PREPROCESSING_DIR_KEY],
+                data_transformation_config[DATA_TRANSFORMATION_PREPROCESSED_FILE_NAME_KEY]
+            )
+
             transformed_train_dir = os.path.join(
                 data_transformation_artifact_dir,
                 data_transformation_config[DATA_TRANSFORMATION_DIR_NAME_KEY],
@@ -120,6 +126,7 @@ class Configuration:
             data_transformation_config = DataTransformationConfig(
                 transformed_train_dir=transformed_train_dir,
                 transformed_test_dir=transformed_test_dir,
+                preprocessed_object_file_path=preprocessed_object_file_path
             )
             logging.info(
                 f"Data Tranformation Config: {data_transformation_config}")

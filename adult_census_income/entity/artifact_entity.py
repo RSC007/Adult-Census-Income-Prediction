@@ -6,14 +6,18 @@ DataIngestionArtifact = namedtuple("DataIngestionArtifact",
 
 
 DataTransformationArtifact = namedtuple("DataTransformationArtifact",
- ["is_transformed", "message", "transformed_train_file_path","transformed_test_file_path"])
+                                        ["is_transformed", "message", "transformed_train_file_path", "transformed_test_file_path"])
 
-     
+
 DataValidationArtifact = namedtuple("DataValidationArtifact", [
                                     "schema_file_path", "report_file_path", "report_page_file_path", "is_validated", "message"])
 
-ModelTrainerArtifact = namedtuple("ModelTrainerArtifact", ["is_trained", "message", "trained_model_file_path",
-                                                           "train_rmse", "test_rmse", "train_accuracy", "test_accuracy"])
+ModelTrainerArtifact = namedtuple("ModelTrainerArtifact", ["is_trained", "message",
+                                                             "trained_model_file_path",
+                                                             "train_classification_report",
+                                                             "test_classification_report",
+                                                             "train_accuracy",
+                                                             "test_accuracy"])
 
 ModelEvaluationArtifact = namedtuple("ModelEvaluationArtifact", [
                                      "is_model_accepted", "evaluated_model_path"])
