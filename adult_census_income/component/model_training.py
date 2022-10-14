@@ -228,13 +228,12 @@ class ModelTrainer:
             # save_object(file_path=trained_model_file_path,obj=adult_census_income_model)
 
             model_trainer_artifact=  ModelTrainerArtifact(is_trained=True,message="Model Trained successfully",
-            trained_model_file_path=trained_model_file_path,
-            train_rmse=metric_info.train_classification_report,
-            test_rmse=metric_info.test_classification_report,
-            train_accuracy=metric_info.train_accuracy,
-            test_accuracy=metric_info.test_accuracy,
+                trained_model_file_path=trained_model_file_path,
+                train_classification_report=metric_info.train_classification_report,
+                test_classification_report=metric_info.test_classification_report,
+                train_accuracy=metric_info.train_accuracy,
+                test_accuracy=metric_info.test_accuracy,
             )
-            print(model_trainer_artifact)
             logging.info(f"Model Trainer Artifact: {model_trainer_artifact}")
             adult_census_income_predictor = AdultCensusIncomeEstimatorModel(trained_model_object=model_object, X_data=X_train)
 
@@ -244,6 +243,10 @@ class ModelTrainer:
             return model_trainer_artifact
         except Exception as e:
             raise AdutlCensusIncomeException(e, sys) from e
+
+
+    def __del__(self):
+        logging.info(f"{'='*20}Model Trainer log completed.{'='*20} \n\n")
 
 
 class ModelFactory:
