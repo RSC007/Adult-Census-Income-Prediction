@@ -10,6 +10,9 @@ MODEL_FILE_PATH = os.path.join(ROOT_DIR, CONFIG_DIR, MODEL_FILE_NAME)
 
 CURRENT_TIME_STAMP = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
 
+def get_current_time_stamp():
+    return f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
+
 # columns
 TARGET_COLUMN = 'salary'
 
