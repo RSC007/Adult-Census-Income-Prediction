@@ -35,13 +35,13 @@ def index():
         return str(e)
 
 
-@app.route('/view_experiment_hist', methods=['GET', 'POST'])
-def view_experiment_history():
-    experiment_df = Pipeline.get_experiments_status()
-    context = {
-        "experiment": experiment_df.to_html(classes='table table-striped col-12')
-    }
-    return render_template('experiment_history.html', context=context)
+# @app.route('/view_experiment_hist', methods=['GET', 'POST'])
+# def view_experiment_history():
+#     experiment_df = Pipeline.get_experiments_status()
+#     context = {
+#         "experiment": experiment_df.to_html(classes='table table-striped col-12')
+#     }
+#     return render_template('experiment_history.html', context=context)
 
 @app.route(f'/logs', defaults={'req_path': f'{LOG_FOLDER_NAME}'})
 @app.route(f'/{LOG_FOLDER_NAME}/<path:req_path>')
@@ -71,6 +71,38 @@ def render_log_dir(req_path):
             log_df = get_log_dataframe(os.path.join(ROOT_DIR, PIPELINE_FOLDER_NAME, "logs", req_path))
             context = {"log": log_df.to_html(classes="table-striped", index=False)}
             return render_template('log.html', context=context)
+
+
+@app.route('/artifact', defaults={'req_path': PIPELINE_FOLDER_NAME})
+@app.route('/artifact/<path:req_path>')
+def render_artifact_dir(req_path):
+    os.makedirs(PIPELINE_FOLDER_NAME, exist_ok=True)
+    # Joining the base and the requested path
+    abs_path = os.path.join(req_path)
+    # Return 404 if path doesn't exist
+    if not os.path.exists(abs_path):
+        return abort(404)
+
+    # Check if path is a file and serve
+    if os.path.isfile(abs_path):
+        if ".html" in abs_path:
+            with open(abs_path, "r", encoding="utf-8") as file:
+                content = ''
+                for line in file.readlines():
+                    content = f"{content}{line}"
+                return content
+        return send_file(abs_path)
+
+    # Show directory contents
+    files = {os.path.join(abs_path, file_name): file_name for file_name in os.listdir(abs_path) if
+             "artifact" in os.path.join(abs_path, file_name)}
+
+    result = {
+        "files": files,
+        "parent_folder": os.path.dirname(abs_path),
+        "parent_label": abs_path
+    }
+    return render_template('files.html', result=result)
 
 
 if __name__=="__main__":
