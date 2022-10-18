@@ -9,4 +9,4 @@ PyYAML
 evidently
 importlib
 dill
-setuptools
+setuptools==65.5.0
