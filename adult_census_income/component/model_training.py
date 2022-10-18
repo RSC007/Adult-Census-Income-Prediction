@@ -223,9 +223,7 @@ class ModelTrainer:
 
             model_object = metric_info.model_object
             # Pickel file is not created yet
-            # adult_census_income_model = AdultCensusIncomeEstimatorModel(preprocessing_object=preprocessing_obj,trained_model_object=model_object)
             logging.info(f"Saving model at path: {trained_model_file_path}")
-            # save_object(file_path=trained_model_file_path,obj=adult_census_income_model)
 
             model_trainer_artifact=  ModelTrainerArtifact(is_trained=True,message="Model Trained successfully",
                 trained_model_file_path=trained_model_file_path,
