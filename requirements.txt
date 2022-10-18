@@ -9,3 +9,4 @@ PyYAML
 evidently
 importlib
 dill
+setuptools

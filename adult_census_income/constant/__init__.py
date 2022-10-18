@@ -10,9 +10,15 @@ MODEL_FILE_PATH = os.path.join(ROOT_DIR, CONFIG_DIR, MODEL_FILE_NAME)
 
 CURRENT_TIME_STAMP = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
 
+DATASET_SCHEMA_COLUMNS_KEY = "columns"
+
+def get_current_time_stamp():
+    return f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
+
 # columns
 TARGET_COLUMN = 'salary'
 
+PIPELINE_NAME = "adult_census_income"
 NOT_NEED_COLUMNS = ["marital-status", "fnlwgt", "education", "capital-gain", "capital-loss"]
 
 
