@@ -1,16 +1,17 @@
-from flask import Flask
+from collections import namedtuple
+from flask import Flask, request
 import os
 import sys
-import json
+import dill 
+import pandas as pd
+import numpy as np
 from flask import send_file, abort, render_template
 
 from adult_census_income.constant import *
+from adult_census_income.entity.predict import AdultCensusIncomePredictor
 from adult_census_income.util.util import read_yaml_file
 from adult_census_income.exception import AdutlCensusIncomeException
 from adult_census_income.logger import get_log_dataframe, logging
-from adult_census_income.config.configuration import Configuration
-from adult_census_income.pipeline.pipeline import Pipeline
-from adult_census_income.component.model_training import AdultCensusIncomeEstimatorModel
 from adult_census_income.constant import CONFIG_DIR
 
 
@@ -23,6 +24,11 @@ MODEL_CONFIG_FILE_PATH = os.path.join(ROOT_DIR, CONFIG_DIR, "model.yaml")
 LOG_DIR = os.path.join(ROOT_DIR, LOG_FOLDER_NAME)
 PIPELINE_DIR = os.path.join(ROOT_DIR, PIPELINE_FOLDER_NAME)
 MODEL_DIR = os.path.join(ROOT_DIR, SAVED_MODELS_DIR_NAME)
+
+ADULT_CENSUS_DATA_KEY = "adult_census_data"
+MEDIAN_ADULT_CENSUS_VALUE_KEY = "median_adult_census_value"
+
+AdlutCensusData = namedtuple("HousingData",['age', 'workclass', 'education', 'occupation', 'relationship', 'race', 'sex', 'hours', 'country'])
 
 
 app=Flask(__name__)
@@ -103,6 +109,74 @@ def render_artifact_dir(req_path):
         "parent_label": abs_path
     }
     return render_template('files.html', result=result)
+
+
+
+def get_latest_model():
+        try:
+            model_path = os.path.join(ROOT_DIR, PIPELINE_NAME, "artifact", "model_trainer")
+            for file in os.listdir(model_path):
+                print(file)
+
+            model_path =  os.path.join(model_path, os.listdir(model_path)[-1], "trained_model", "model.pkl")
+            print(model_path)
+
+            return dill.load(open(model_path, "rb"))
+        except Exception as e:
+            raise AdutlCensusIncomeException(e, sys) from e
+
+
+@app.route('/predict', methods=['GET', 'POST'])
+def predict():
+    context = {
+        ADULT_CENSUS_DATA_KEY: None,
+        MEDIAN_ADULT_CENSUS_VALUE_KEY: None
+    }
+    # predict = AdultCensusIncomePredictor()
+    # predict.predict()
+
+    model_ref = get_latest_model()
+    print("model_pathmodel_pathmodel_pathmodel_path")
+    
+
+    
+
+    if request.method == 'POST':
+        age = float(request.form['age'])
+        workclass = float(request.form['workclass'])
+        education = float(request.form['education-num'])
+        occupation = float(request.form['occupation'])
+        relationship = float(request.form['relationship'])
+        race = float(request.form['race'])
+        sex = float(request.form['sex'])
+        hours = float(request.form['hours-per-week'])
+        country = request.form['country']
+
+
+        adlut_census_data = AdlutCensusData(age=age,
+                                   workclass=workclass,
+                                   education=education,
+                                   occupation=occupation,
+                                   relationship=relationship,
+                                   race=race,
+                                   sex=sex,
+                                   hours=hours,
+                                   country=country,
+                                   )
+
+        print("adlut_census_data", model_ref)
+        predict = model_ref.predict(pd.DataFrame(adlut_census_data))
+        print("su0cess")
+        print(predict)
+        housing_df = adlut_census_data.get_housing_input_data_frame()
+        housing_predictor = AdultCensusIncomePredictor(model_dir=MODEL_DIR)
+        median_housing_value = housing_predictor.predict(X=housing_df)
+        context = {
+            ADULT_CENSUS_DATA_KEY: adlut_census_data.get_housing_data_as_dict(),
+            MEDIAN_ADULT_CENSUS_VALUE_KEY: median_housing_value,
+        }
+        return render_template('predict.html', context=context)
+    return render_template("predict.html", context=context)
 
 
 if __name__=="__main__":
